@@ -1,7 +1,6 @@
 import h5py
 import numpy as np
 
-from pathlib import Path
 from sklearn.model_selection import train_test_split
 from tensorflow import data
 
@@ -29,22 +28,26 @@ if __name__ == "__main__":
             X_taubit = X_taubit[indices]
             X_egbit = X_egbit[indices]
 
-
         X_et, X_test_et, X_taubit, X_test_taubit, X_egbit, X_test_egbit = train_test_split(
             X_et, X_taubit, X_egbit, test_size=0.2, random_state=42)
         X_train_et, X_val_et, X_train_taubit, X_val_taubit, X_train_egbit, X_val_egbit = train_test_split(
             X_et, X_taubit, X_egbit, test_size=0.25, random_state=42)  # 0.25 x 0.8 = 0.2
         
+        if "ZB" in proc:
+            scale_factor = 1.0
+        else:
+            scale_factor = 0.5
+        
         # save as h5py files
         with h5py.File(f"data/{proc}_train.h5", "w") as f_train:
-            f_train.create_dataset("et", data=X_train_et, dtype=np.int16)
+            f_train.create_dataset("et", data=X_train_et * scale_factor, dtype=np.int16)
             f_train.create_dataset("taubit", data=X_train_taubit, dtype=bool)
             f_train.create_dataset("egbit", data=X_train_egbit, dtype=bool)
         with h5py.File(f"data/{proc}_val.h5", "w") as f_val:
-            f_val.create_dataset("et", data=X_val_et, dtype=np.int16)
+            f_val.create_dataset("et", data=X_val_et * scale_factor, dtype=np.int16)
             f_val.create_dataset("taubit", data=X_val_taubit, dtype=bool)
             f_val.create_dataset("egbit", data=X_val_egbit, dtype=bool)
         with h5py.File(f"data/{proc}_test.h5", "w") as f_test:
-            f_test.create_dataset("et", data=X_test_et, dtype=np.int16)
+            f_test.create_dataset("et", data=X_test_et * scale_factor, dtype=np.int16)
             f_test.create_dataset("taubit", data=X_test_taubit, dtype=bool)
             f_test.create_dataset("egbit", data=X_test_egbit, dtype=bool)
